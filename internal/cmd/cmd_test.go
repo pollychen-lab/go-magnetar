@@ -82,6 +82,8 @@ func TestPrintEnabledModules(t *testing.T) {
 }
 
 func TestReadFileInput(t *testing.T) {
+	t.Parallel()
+
 	t.Run("reads stdin when filename is dash", func(t *testing.T) {
 		got, err := readFileInput("-", strings.NewReader("from stdin"))
 		if err != nil {
@@ -93,17 +95,14 @@ func TestReadFileInput(t *testing.T) {
 	})
 
 	t.Run("reads named file", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "prompt.txt")
-		if err := os.WriteFile(path, []byte("from file"), 0o600); err != nil {
-			t.Fatal(err)
-		}
+		path := filepath.Join("testdata", "prompt.txt")
 
 		got, err := readFileInput(path, strings.NewReader("ignored stdin"))
 		if err != nil {
 			t.Fatalf("readFileInput returned error: %v", err)
 		}
-		if string(got) != "from file" {
-			t.Fatalf("readFileInput = %q, want %q", got, "from file")
+		if string(got) != "from file\n" {
+			t.Fatalf("readFileInput = %q, want %q", got, "from file\n")
 		}
 	})
 }

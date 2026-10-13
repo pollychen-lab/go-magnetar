@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -108,7 +109,7 @@ func Execute() error {
 	}
 
 	if root.File != "" {
-		data, err := os.ReadFile(root.File)
+		data, err := readFileInput(root.File, os.Stdin)
 		if err != nil {
 			return errors.Wrapf(err, "read file %s error", root.File)
 		}
@@ -134,6 +135,14 @@ func Execute() error {
 	}
 
 	return agent.Run()
+}
+
+func readFileInput(filename string, stdin io.Reader) ([]byte, error) {
+	if filename == "-" {
+		return io.ReadAll(stdin)
+	}
+
+	return os.ReadFile(filename)
 }
 
 func loadSession(a *chat.ChatAgent, filename string) error {
